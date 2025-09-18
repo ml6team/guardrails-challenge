@@ -9,12 +9,12 @@ from tqdm import tqdm
 
 
 def load_hidden_states(topic: str,
-                       embed_dim: int,
                        device: torch.device = 'cuda' if torch.cuda.is_available() else 'cpu') -> torch.Tensor:
     
     BASE_PATH = Path(__file__).parent
+    EMBED_DIM = 4096
     hidden_path = BASE_PATH / 'hidden_states' / topic
-    hidden_states = torch.ones((1000, embed_dim))
+    hidden_states = torch.ones((1000, EMBED_DIM))
 
     ptr = 0
     for file_name in tqdm(os.listdir(hidden_path), desc='Loading tensor batches...'):
@@ -30,9 +30,7 @@ def load_hidden_states(topic: str,
     return hidden_states
 
 
-def load_representation_set(
-                            prompt_types: list[tuple[str, str]],
-                            embed_dim: int,
+def load_representation_set(prompt_types: list[tuple[str, str]],
                             device: torch.device = 'cuda' if torch.cuda.is_available() else 'cpu') -> dict:
     hidden_states = {}
     labels = {}
@@ -40,7 +38,6 @@ def load_representation_set(
     for i, (type, prompt_name) in enumerate(prompt_types):
         X = load_hidden_states(
                                topic=type,
-                               embed_dim=embed_dim,
                                device=device)
         hidden_states[type] = X
         labels[type] = i * torch.ones(X.shape[0], dtype=torch.long, device=device)
